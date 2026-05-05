@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import ProfileCard from "./ProfileCard";
+import { login, me } from "../services/authService";
 
 const saveSession = (access, refresh) => {
   localStorage.setItem("accessToken", access);
   localStorage.setItem("refreshToken", refresh);
 };
 
-const SignInCard = () => {
+const SignInCard = ({onSignIn}) => {
   const [message, setMessage] = useState("");
   const [errors, setErrors] = useState({});
   const [isSubmit, setIsSubmit] = useState(false);
@@ -16,36 +17,42 @@ const SignInCard = () => {
     password: "",
     email: "",
     role: "user",
-  });
+  }); 
 
-  const registeredUser = async (formData) => {
-    await fetch("https://api.freeapi.app/api/v1/users/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log('login success',data);
-        setMessage(data.message);
-        saveSession(data.data.accessToken, data.data.refreshToken);
-        setProfile(data.data.user);
-        console.log("profile", profile);
-        if (data.success) {
-          setIsSubmit(true);
-          setMessage(data.message);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
+  
+  function set(fieldName) {
+    return (e) => {
+      setFormData({ ...formData, [fieldName]: e.target.value });
+    };
+  }
+
+  function validate(values) {
+    let errors = {};
+    if (!formData.password) errors.password = "Password is required";
+    if (!formData.email) errors.email = "Email is required";
+    if (
+      (formData.email && !formData.email.includes("@")) ||
+      !formData.email.includes(".")
+    )
+      errors.email = "Email format is incorrect";
+    return errors;
+  }
 
   const submitHandler = (e) => {
     e.preventDefault();
-    console.log(formData);
-    registeredUser(formData);
+    const errors = validate(formData);
+    if (Object.keys(errors).length > 0) {
+      setErrors(errors);
+      return;
+    }
+    login(formData.email, formData.password).then((data) => {
+      setMessage(data.message);
+      setIsSubmit(true);
+      onSignIn?.();
+      me().then((data) => setProfile(data));
+    }).catch((err) => console.error('Error in Login', err));
   };
+
   if (isSubmit) {
     return (
       <ProfileCard />
@@ -59,21 +66,23 @@ const SignInCard = () => {
         Email
         <input
           type="email"
+          className={errors.email ? "error" : ""}
           placeholder="Enter your email"
           value={formData.email}
-          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+          onChange={set("email")}
         />
+        {errors.email && <span className="error">{errors.email}</span>}
       </label>
       <label>
         Password
         <input
           type="password"
+          className={errors.password ? "error" : ""}
           placeholder="Enter your password"
           value={formData.password}
-          onChange={(e) =>
-            setFormData({ ...formData, password: e.target.value })
-          }
+          onChange={set("password")}
         />
+        {errors.password && <span className="error">{errors.password}</span>}
       </label>
       <button type="submit">Sign In</button>
     </form>

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { register } from "../services/authService";
 
 const SignUpCard = () => {
   const [formData, setFormData] = useState({
@@ -11,30 +12,9 @@ const SignUpCard = () => {
   const [isSubmit, setIsSubmit] = useState(false);
   const [message, setMessage] = useState("");
 
-  const registeredUser = async (formData) => {
-    await fetch("https://api.freeapi.app/api/v1/users/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        setErrors(data.errors);
-        console.log("errors", errors);
-        setMessage(data.message);
-        if (data.success) {
-          setIsSubmit(true);
-          setMessage(data.message);
-        }
-      })
-      .catch((error) => console.error("error in sign up", error));
-  };
   function set(fieldName) {
     return (e) => {
       setFormData({ ...formData, [fieldName]: e.target.value });
-      console.log([fieldName], e.target.value);
     };
   }
 
@@ -60,7 +40,10 @@ const SignUpCard = () => {
       setErrors(errors);
       return;
     }
-    registeredUser(formData);
+    register(formData.username, formData.email, formData.password).then((data) => {
+      setMessage(data.message);
+      setIsSubmit(true);
+    });
   };
   if (isSubmit) {
     return (
@@ -80,25 +63,17 @@ const SignUpCard = () => {
         <input
           type="text"
           placeholder="Enter your name"
+          className={errors.username ? "error" : ""}
           value={formData.username}
           onChange={set("username")}
         />
         {errors.username && <span className="error">{errors.username}</span>}
       </label>
       <label>
-        Password
-        <input
-          type="password"
-          placeholder="Enter your password"
-          value={formData.password}
-          onChange={set("password")}
-        />
-        {errors.password && <span className="error">{errors.password}</span>}
-      </label>
-      <label>
         Email
         <input
           type="email"
+          className={errors.email ? "error" : ""}
           placeholder="Enter your email"
           value={formData.email}
           onChange={set("email")}
@@ -106,8 +81,19 @@ const SignUpCard = () => {
         {errors.email && <span className="error">{errors.email}</span>}
       </label>
       <label>
+        Password
+        <input
+          type="password"
+          className={errors.password ? "error" : ""}
+          placeholder="Enter your password"
+          value={formData.password}
+          onChange={set("password")}
+        />
+        {errors.password && <span className="error">{errors.password}</span>}
+      </label>
+      <label>
         Role
-        <select value={formData.role} onChange={set("role")}>
+        <select value={formData.role} onChange={set("role")} className={errors.role ? "error" : ""}>
           <option value="USER">User</option>
           <option value="ADMIN">Admin</option>
         </select>

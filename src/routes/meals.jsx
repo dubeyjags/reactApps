@@ -32,7 +32,7 @@ function RouteComponent() {
 
   return (
     <div>
-      {loading && <div className="loading">Loading...</div>}
+      {loading && <div className="loading">Thamba...</div>}
       <h1>Meals</h1>
       <div className="meals">
         {meals && meals.map((meal) => (

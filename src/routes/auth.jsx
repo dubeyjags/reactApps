@@ -3,31 +3,52 @@ import SignUpCard from "../components/SignUpCard";
 import { useState } from "react";
 import SignInCard from "../components/SignInCard";
 import ProfileCard from "../components/ProfileCard";
+import { tokenStore } from "../services/tokenStore";
 
 export const Route = createFileRoute("/auth")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const [resitered, setResitered] = useState(true);
-  const toggleResitered = () => {
-    return setResitered(!resitered);
-  };
-  // if(true) return <ProfileCard />
+  const [isRegistering, setIsRegistering] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(!!tokenStore.getAccess());
+
+  const handleSignIn = () => setIsLoggedIn(true);
+  const handleSignOut = () => setIsLoggedIn(false);
+
+  if(loading) {
+    <div className="loading">Thanmba...</div>
+  }
+
+
+  if (isLoggedIn) {
+    return (
+      <div className="auth">
+        <h1>Auth</h1>
+        <ProfileCard onSignOut={handleSignOut} />
+      </div>
+    );
+  }
+
   return (
     <div className="auth">
       <h1>Auth</h1>
-      {resitered ? <SignUpCard /> : <SignInCard />}
+      {isRegistering ? (
+        <SignUpCard onSuccess={() => setIsRegistering(false)} />
+      ) : (
+        <SignInCard onSignIn={handleSignIn} />
+      )}
       <div className="SignToggler">
-        {resitered ? (
+        {isRegistering ? (
           <p>
             Already have an account?{" "}
-            <span onClick={toggleResitered}>Sign in</span>
+            <span onClick={() => setIsRegistering(false)}>Sign in</span>
           </p>
         ) : (
           <p>
             Don't have an account?{" "}
-            <span onClick={toggleResitered}>Sign up</span>
+            <span onClick={() => setIsRegistering(true)}>Sign up</span>
           </p>
         )}
       </div>

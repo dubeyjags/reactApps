@@ -1,57 +1,38 @@
-import React, { useState,useEffect } from "react";
+import { useEffect, useState } from "react";
+import { tokenStore } from "../services/tokenStore";
+import { logout } from "../services/authService";
 
-const getRefreshToken = () => localStorage.getItem("refreshToken");
-const getAccessToken = () => localStorage.getItem("accessToken");
-const clearSession = () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-};
+const ProfileCard = ({onSignOut}) => {  
+  const [profile, setProfile] = useState({});
+  const [message, setMessage] = useState("");
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-const ProfileCard = () => {
-    const [profile, setProfile] = useState(null);
-    const [isSubmit, setIsSubmit] = useState(false);
-    const [message, setMessage] = useState("");
-    const [formData, setFormData] = useState({ email: "", password: "" });
-
-    
-
-    useEffect(() => {
-        const token = getAccessToken();
-        if (token) {
-          fetch(`https://api.freeapi.app/api/v1/users/current-user`)
-            .then((res) => res.json())
-            .then((data) => {
-              if (data.success) {
-                setProfile(data.data);
-                setIsSubmit(true);
-                console.log('profile',profile);
-              } else {
-                clearSession();
-              }
-            })
-            .catch(() => clearSession());
-        }
-      }, []);
+  useEffect(() => {
+    setProfile(tokenStore.getUser());
+    console.log('tokenStore.getUser()', tokenStore.getUser());
+  }, []);
 
   const handleLogout = async () => {
+    setIsLoggingOut(true);
     try {
-      await fetch(`https://api.freeapi.app/api/v1/users/logout`, { method: "POST" });
+      const data = await logout();
+      setMessage(data.message);
     } catch (err) {
-      console.error("Logout error:", err);
+      console.error(err);
     } finally {
-      clearSession();
-      setProfile(null);
-      setIsSubmit(false);
-      setMessage("");
-      setFormData({ email: "", password: "" });
+      setIsLoggingOut(false);
     }
+    onSignOut?.();
   };
+
   return (
     <div className="cards">
-      <p className="text-success">{message}</p>
-      {/* <h2>Welcome, {profile.username}</h2>
-      <p>{profile.email}</p> */}
-      <button onClick={handleLogout}>Sign Out</button>
+      {message && <p className="text-error">{message}</p>}
+      <h2>Welcome, {profile.username}</h2>
+      <p>{profile.email}</p>
+      <button onClick={handleLogout} disabled={isLoggingOut}>
+        {isLoggingOut ? "Signing out..." : "Sign Out"}
+      </button>
     </div>
   );
 };

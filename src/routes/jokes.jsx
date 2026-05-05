@@ -37,7 +37,7 @@ function RouteComponent() {
 
   return (
     <div>
-      {loading && <div className='loading'>Loading...</div>}
+      {loading && <div className='loading'>Thamba...</div>}
       <h1>Jokes</h1>
       <div className='jokes'> {jokes.map((joke) => (
          <JokeCard key={joke.id} joke={joke} />

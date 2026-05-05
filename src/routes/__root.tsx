@@ -1,5 +1,8 @@
 import { createRootRoute, Link, Outlet } from '@tanstack/react-router'
 
+function toggleTheme() {
+  document.body.classList.toggle('dark')
+}
 const RootLayout = () => (
   <>
     <ul className="menu">
@@ -12,6 +15,8 @@ const RootLayout = () => (
       <li><Link to="/cats" className="[&.active]:font-bold">🐱 <span>Cats</span></Link></li>
       <li><Link to="/meals" className="[&.active]:font-bold">🍽️ <span>Meals</span></Link></li>
       <li><Link to="/users" className="[&.active]:font-bold">👥 <span>Users</span></Link></li>
+
+    <li><button onClick={toggleTheme}>🌗 <span>Theme</span></button></li>
     </ul>
     <main>
       <Outlet />

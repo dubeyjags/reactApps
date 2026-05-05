@@ -30,7 +30,7 @@ function RouteComponent() {
 
   return (
     <div className="cats">
-      {loading && <div className="loading">Loading...</div>}
+      {loading && <div className="loading">Thamba...</div>}
       <h1>Cat</h1>
       <div className="cards">
       <img src={cat.image} alt={cat.name} className="cat-image" />
