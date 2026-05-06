@@ -35,7 +35,7 @@ function RouteComponent() {
   }, []);
 
   return (<div>
-    {loading && <div className="loading">Thamba...</div>}
+    {loading && <div className="loading"></div>}
     <h1>Products</h1>
 <div className='products'> {products.map((product) => (
          <ProductCard key={product.id} product={product} />

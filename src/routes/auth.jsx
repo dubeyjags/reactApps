@@ -32,8 +32,9 @@ function RouteComponent() {
   }
 
   return (
-    <div className="auth">
+      <>
       <h1>Auth</h1>
+    <div className="auth">
       {isRegistering ? (
         <SignUpCard onSuccess={() => setIsRegistering(false)} />
       ) : (
@@ -53,5 +54,6 @@ function RouteComponent() {
         )}
       </div>
     </div>
+      </>
   );
 }

@@ -29,7 +29,7 @@ function RouteComponent() {
     fetchVideos();
   }, []);
  return (<div>
-  {loading && <div className="loading">Thamba...</div>}
+  {loading && <div className="loading"></div>}
    <h1>Videos</h1>
    <div className="videos">
      {videos && videos.map((video) => (
